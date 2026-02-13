@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Course Difficulty Analyzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="login-body">
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="blob" style="background: rgba(79, 70, 229, 0.4);"></div>
+        <div class="blob" style="background: rgba(16, 185, 129, 0.4);"></div>
+        <div class="blob" style="background: rgba(139, 92, 246, 0.4);"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-switch-wrapper">
+        <button id="theme-toggle" class="theme-toggle"
+            style="background: var(--glass-bg); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-glass); border: 1px solid var(--glass-border);"><i
+                class="fas fa-moon"></i></button>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 20px;"><i
+                    class="fas fa-user-shield"></i></div>
+            <h2 class="login-title">Secure Portal</h2>
+            <p class="login-subtitle">Intelligence Access for Academic Growth</p>
+
+            <div class="role-select">
+                <button class="role-btn active" id="student-role"><i class="fas fa-user-graduate"></i> Student</button>
+                <button class="role-btn" id="teacher-role"><i class="fas fa-chalkboard-teacher"></i> Teacher</button>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group floating-group">
+                    <input type="text" id="username" class="form-control" placeholder=" " required autocomplete="off">
+                    <label for="username"><i class="fas fa-user" style="margin-right: 8px;"></i> Username</label>
+                    <div class="input-line"></div>
+                </div>
+
+                <div class="form-group floating-group">
+                    <input type="password" id="password" class="form-control" placeholder=" " required>
+                    <label for="password"><i class="fas fa-lock" style="margin-right: 8px;"></i> Password</label>
+                    <div class="input-line"></div>
+                </div>
+
+                <button type="submit" class="btn btn-login" style="box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);">
+                    <span>Initialize Session</span>
+                    <i class="fas fa-arrow-right arrow-icon"></i>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <a href="index.html" class="back-link"><i class="fas fa-long-arrow-alt-left"></i> Home</a>
+                <span style="color: var(--text-muted); margin: 0 15px;">|</span>
+                <a href="#" id="reset-demo" class="back-link"><i class="fas fa-undo"></i> Reset Database</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Subject - SCDA System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .rating-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .rating-btn {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .rating-btn.active {
+            border-color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                SCDA System
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li class="teacher-only"><a href="add-subject.html"><i class="fas fa-plus-circle"></i> Add Subject</a>
+                </li>
+                <li class="student-only"><a href="rate-subject.html" class="active"><i class="fas fa-star-half-alt"></i>
+                        Rate Subject</a></li>
+                <li><a href="materials.html"><i class="fas fa-book-open"></i> Lecture Materials</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-line"></i> Reports & Analysis</a></li>
+                <li style="margin-top: auto;"><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="sidebar-toggle" class="btn" style="display: none; padding: 5px 10px;">☰</button>
+                    <h2 style="margin: 0;">Course Feedback</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="user-info">
+                        <i class="fas fa-user-graduate" style="margin-right: 8px;"></i> Logged in as: Student
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle">🌙</button>
+                </div>
+            </div>
+
+            <div class="card form-container" style="max-width: 700px; text-align: left;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <i class="fas fa-comment-dots"
+                        style="font-size: 2.5rem; color: var(--accent-color); margin-bottom: 15px;"></i>
+                    <h3>Share Your Experience</h3>
+                    <p class="text-muted">Your feedback helps us optimize course difficulty and materials.</p>
+                </div>
+
+                <form id="rate-subject-form">
+                    <div class="form-group">
+                        <label for="subjectSelect"><i class="fas fa-book"></i> Select Subject</label>
+                        <select id="subjectSelect" class="form-control" required
+                            style="background: var(--background-gradient);">
+                            <option value="" disabled selected>Choose a subject...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-tachometer-alt"></i> Difficulty Rating</label>
+                        <div class="rating-btn-group">
+                            <button type="button" class="rating-btn" data-value="1"><span>1</span><small>Very
+                                    Easy</small></button>
+                            <button type="button" class="rating-btn"
+                                data-value="2"><span>2</span><small>Easy</small></button>
+                            <button type="button" class="rating-btn active"
+                                data-value="3"><span>3</span><small>Moderate</small></button>
+                            <button type="button" class="rating-btn"
+                                data-value="4"><span>4</span><small>Hard</small></button>
+                            <button type="button" class="rating-btn" data-value="5"><span>5</span><small>Very
+                                    Hard</small></button>
+                        </div>
+                        <input type="hidden" id="rating" value="3">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marks"><i class="fas fa-poll-h"></i> Estimated Performance (0-100%)</label>
+                        <input type="number" id="marks" class="form-control" min="0" max="100" placeholder="e.g. 85"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="feedback"><i class="fas fa-pen-fancy"></i> Additional Comments</label>
+                        <textarea id="feedback" class="form-control"
+                            placeholder="What parts did you find most challenging?"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-block"
+                        style="margin-top: 30px; padding: 15px; font-size: 1.1rem; background: var(--accent-color);">
+                        <i class="fas fa-paper-plane"></i> Submit Analysis
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const subjects = await API.getSubjects();
+                const select = document.getElementById('subjectSelect');
+                subjects.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.code;
+                    opt.textContent = `${sub.name} (${sub.code})`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Failed to load subjects:', err);
+            }
+
+            // Rating Buttons Logic
+            const ratingBtns = document.querySelectorAll('.rating-btn');
+            const ratingInput = document.getElementById('rating');
+
+            ratingBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    ratingBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    ratingInput.value = btn.dataset.value;
+                });
+            });
+        });
+
+        document.getElementById('rate-subject-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const subject_code = document.getElementById('subjectSelect').value;
+            const rating = parseInt(document.getElementById('rating').value);
+            const marks = parseInt(document.getElementById('marks').value);
+            const feedback = document.getElementById('feedback').value;
+
+            if (!subject_code) return alert('Please select a subject');
+
+            try {
+                const result = await API.submitFeedback({ subject_code, rating, marks, feedback });
+                if (result.success) {
+                    alert('Feedback submitted successfully!');
+                    this.reset();
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Submission failed: ' + result.error);
+                }
+            } catch (err) {
+                console.error('Submission failed:', err);
+                alert('API error. Ensure backend is running.');
+            }
+        });
+    </script>
+</body>
+
+</html>

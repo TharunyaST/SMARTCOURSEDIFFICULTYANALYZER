@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Subject - SCDA System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                SCDA System
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li class="teacher-only"><a href="add-subject.html" class="active"><i class="fas fa-plus-circle"></i>
+                        Add Subject</a></li>
+                <li class="student-only"><a href="rate-subject.html"><i class="fas fa-star-half-alt"></i> Rate
+                        Subject</a></li>
+                <li><a href="materials.html"><i class="fas fa-book-open"></i> Lecture Materials</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-line"></i> Reports & Analysis</a></li>
+                <li style="margin-top: auto;"><a href="index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <button id="sidebar-toggle" class="btn" style="display: none; padding: 5px 10px;">☰</button>
+                    <h2 style="margin: 0;">Academic Management</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="user-info">
+                        <i class="fas fa-user-tie" style="margin-right: 8px;"></i> Logged in as: Teacher
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle">🌙</button>
+                </div>
+            </div>
+
+            <div class="card form-container" style="max-width: 700px; text-align: left;">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <i class="fas fa-folder-plus"
+                        style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                    <h3>Subject & Material Update</h3>
+                    <p class="text-muted">Register new courses or upload supplementary materials.</p>
+                </div>
+
+                <form id="add-subject-form">
+                    <div class="form-group">
+                        <label for="targetSubject"><i class="fas fa-list-ul"></i> Target Subject</label>
+                        <select id="targetSubject" class="form-control" required
+                            style="background: var(--background-gradient);">
+                            <option value="new">-- Register New Subject --</option>
+                        </select>
+                    </div>
+
+                    <div id="new-subject-fields">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="subjectName"><i class="fas fa-heading"></i> Subject Name</label>
+                                <input type="text" id="subjectName" class="form-control"
+                                    placeholder="e.g. Machine Learning">
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectCode"><i class="fas fa-barcode"></i> Subject Code</label>
+                                <input type="text" id="subjectCode" class="form-control" placeholder="e.g. AI402">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top: 30px; padding: 25px; background: rgba(79, 70, 229, 0.05); border-radius: var(--radius); border: 1px dashed var(--primary-color);">
+                        <h4 style="margin-bottom: 20px; color: var(--primary-color);"><i
+                                class="fas fa-cloud-upload-alt"></i> Material Upload</h4>
+
+                        <div class="form-group">
+                            <label for="teacherName">Instructor Name</label>
+                            <input type="text" id="teacherName" class="form-control" placeholder="e.g. Dr. Roberts">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="materialTitle">Document Title</label>
+                            <input type="text" id="materialTitle" class="form-control"
+                                placeholder="e.g. Chapter 1: Optimization PDF">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="materialFile">Select Document (PDF preferred)</label>
+                            <input type="file" id="materialFile" class="form-control" style="padding: 10px;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-block"
+                        style="margin-top: 30px; padding: 15px; font-size: 1.1rem;">
+                        <i class="fas fa-check-double"></i> Save Subject Data
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const select = document.getElementById('targetSubject');
+            const newFields = document.getElementById('new-subject-fields');
+
+            try {
+                const subjects = await API.getSubjects();
+                subjects.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.code;
+                    opt.textContent = `${sub.name} (${sub.code})`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Failed to load subjects:', err);
+            }
+
+            select.addEventListener('change', () => {
+                newFields.style.opacity = select.value === 'new' ? '1' : '0.5';
+                newFields.style.pointerEvents = select.value === 'new' ? 'auto' : 'none';
+            });
+        });
+
+        document.getElementById('add-subject-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const target = document.getElementById('targetSubject').value;
+            const materialTitle = document.getElementById('materialTitle').value;
+            const teacherName = document.getElementById('teacherName').value || 'Unknown Teacher';
+
+            try {
+                if (target === 'new') {
+                    const name = document.getElementById('subjectName').value;
+                    const code = document.getElementById('subjectCode').value;
+                    if (!name || !code) return alert('Please fill in subject details');
+
+                    await API.addSubject(code, name);
+                    if (materialTitle) {
+                        await API.addMaterial({ subject_code: code, title: materialTitle, uploaded_by: teacherName });
+                    }
+                    alert(`Subject "${name}" created successfully!`);
+                } else if (materialTitle) {
+                    await API.addMaterial({ subject_code: target, title: materialTitle, uploaded_by: teacherName });
+                    alert(`Material uploaded successfully!`);
+                } else {
+                    return alert('Nothing to update.');
+                }
+
+                this.reset();
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                console.error('Upload failed:', err);
+                alert('API Error. Ensure backend is running.');
+            }
+        });
+    </script>
+</body>
+
+</html>
