@@ -68,7 +68,8 @@ const seedDB = async () => {
             await Material.create({
                 subject_code: sub.code,
                 title: `${sub.name} Final Revision Notes`,
-                uploaded_by: 'Teacher Dummy'
+                uploaded_by: 'Teacher Dummy',
+                fileUrl: 'https://example.com/dummy-material.pdf'
             });
 
             // Create notification

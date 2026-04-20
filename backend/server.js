@@ -147,9 +147,9 @@ app.post('/api/feedback', async (req, res) => {
 
 // --- Material Routes ---
 app.post('/api/materials', async (req, res) => {
-    const { subject_code, title, uploaded_by } = req.body;
+    const { subject_code, title, uploaded_by, fileUrl } = req.body;
     try {
-        await Material.create({ subject_code, title, uploaded_by });
+        await Material.create({ subject_code, title, uploaded_by, fileUrl });
         res.json({ success: true });
     } catch (err) {
         console.error('Add Material Error:', err);

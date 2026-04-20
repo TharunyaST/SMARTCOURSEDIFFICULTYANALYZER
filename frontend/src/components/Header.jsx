@@ -9,12 +9,6 @@ const Header = ({ title }) => {
     const [notifications, setNotifications] = useState([]);
     const [showNotifs, setShowNotifs] = useState(false);
 
-    useEffect(() => {
-        if (isTeacher()) {
-            loadNotifications();
-        }
-    }, []);
-
     const loadNotifications = async () => {
         try {
             const data = await ApiService.getNotifications();
@@ -23,6 +17,12 @@ const Header = ({ title }) => {
             console.error("Failed to load notifications", err);
         }
     };
+
+    useEffect(() => {
+        if (isTeacher()) {
+            loadNotifications();
+        }
+    }, [isTeacher]);
 
     const markAsRead = async (id) => {
         try {
