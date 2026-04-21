@@ -23,12 +23,12 @@ const RateSubjectPage = () => {
     const loadSubjects = async () => {
         try {
             const data = await ApiService.getSubjects();
-            const studentName = (user?.displayName || user?.email || 'User').toLowerCase();
+            const studentNameCheck = (user?.displayName || user?.email?.split('@')[0] || 'User').toLowerCase();
 
             let available = 0;
             const processedSubjects = data.map(sub => {
                 const hasRated = sub.reviews && sub.reviews.some(rev =>
-                    rev.studentName && rev.studentName.toLowerCase() === studentName
+                    rev.studentName && rev.studentName.toLowerCase() === studentNameCheck
                 );
                 if (!hasRated) {
                     available++;
