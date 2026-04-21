@@ -202,7 +202,7 @@ const SearchPage = () => {
                                                 <Star size={14} /> Diff Rating: {res.rating}/5
                                             </span>
                                             <span className="badge badge-success" style={{ padding: '4px 10px', display: 'inline-flex', alignItems: 'center' }}>
-                                                Score: {res.marks}%
+                                                Mark: {res.marks !== undefined ? `${res.marks}%` : 'Not provided'}
                                             </span>
                                         </div>
                                     </div>

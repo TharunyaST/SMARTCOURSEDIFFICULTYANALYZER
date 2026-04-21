@@ -26,21 +26,22 @@ const RateSubjectPage = () => {
             const studentName = (user?.displayName || user?.email || 'User').toLowerCase();
 
             let available = 0;
-            const filterSubjects = data.filter(sub => {
+            const processedSubjects = data.map(sub => {
                 const hasRated = sub.reviews && sub.reviews.some(rev =>
                     rev.studentName && rev.studentName.toLowerCase() === studentName
                 );
                 if (!hasRated) {
                     available++;
-                    return true;
                 }
-                return false;
+                return { ...sub, hasRated };
             });
             
-            setSubjects(filterSubjects);
+            setSubjects(processedSubjects);
             setAvailableSubjectsCount(available);
-            if (available > 0) {
-                setTargetSubject(filterSubjects[0].code);
+            
+            const firstAvailable = processedSubjects.find(s => !s.hasRated);
+            if (firstAvailable) {
+                setTargetSubject(firstAvailable.code);
             }
         } catch (err) {
             console.error('Failed to load subjects:', err);
@@ -118,8 +119,8 @@ const RateSubjectPage = () => {
                             <option value="" disabled>Choose a subject...</option>
                         )}
                         {subjects.map(sub => (
-                            <option key={sub.code} value={sub.code}>
-                                {sub.name} ({sub.code})
+                            <option key={sub.code} value={sub.code} disabled={sub.hasRated}>
+                                {sub.name} ({sub.code}) {sub.hasRated ? '- Already Rated' : ''}
                             </option>
                         ))}
                     </select>
