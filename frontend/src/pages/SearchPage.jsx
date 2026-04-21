@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 
 const SearchPage = () => {
     const { isTeacher } = useAuth();
-    const [query, setQuery] = useState('');
+    const [studentQuery, setStudentQuery] = useState('');
+    const [subjectQuery, setSubjectQuery] = useState('');
     const [results, setResults] = useState([]);
     const [hasSearched, setHasSearched] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -18,9 +19,10 @@ const SearchPage = () => {
     const performSearch = async (e) => {
         if (e) e.preventDefault();
         
-        const trimmedQuery = query.trim().toLowerCase();
+        const trimmedStudentQuery = studentQuery.trim().toLowerCase();
+        const trimmedSubjectQuery = subjectQuery.trim().toLowerCase();
         
-        if (!trimmedQuery) {
+        if (!trimmedStudentQuery && !trimmedSubjectQuery) {
             setResults([]);
             setHasSearched(false);
             return;
@@ -38,7 +40,15 @@ const SearchPage = () => {
                 if (sub.reviews) {
                     sub.reviews.forEach(rev => {
                         const studentName = (rev.studentName || 'Anonymous').toLowerCase();
-                        if (studentName.includes(trimmedQuery)) {
+                        const subjectName = (sub.name || '').toLowerCase();
+                        const subjectCode = (sub.code || '').toLowerCase();
+                        
+                        const matchStudent = !trimmedStudentQuery || studentName.includes(trimmedStudentQuery);
+                        const matchSubject = !trimmedSubjectQuery || subjectName.includes(trimmedSubjectQuery) || subjectCode.includes(trimmedSubjectQuery);
+                        
+                        // We do an AND search, so if both fields are provided, both must match
+                        // If one field is empty, it acts like a wildcard and effectively ignores that criteria
+                        if (matchStudent && matchSubject) {
                             studentResults.push({
                                 ...rev,
                                 subjectName: sub.name,
@@ -84,7 +94,7 @@ const SearchPage = () => {
         return '#10b981';
     };
 
-    const displayQuery = query.trim() ? query.trim().charAt(0).toUpperCase() + query.trim().slice(1) : '';
+    const displayQuery = [studentQuery.trim(), subjectQuery.trim()].filter(Boolean).join(" & ");
 
     return (
         <div className="card" style={{ marginTop: '40px', padding: '40px' }}>
@@ -93,10 +103,34 @@ const SearchPage = () => {
                 <div style={{ flex: 1, position: 'relative' }}>
                     <input 
                         type="text" 
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        value={studentQuery}
+                        onChange={(e) => setStudentQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Enter student name (e.g. Alice, Bob)..."
+                        placeholder="Search student name..."
+                        style={{ 
+                            width: '100%', 
+                            padding: '12px 15px 12px 40px', 
+                            borderRadius: '8px', 
+                            border: '1px solid var(--border-color)', 
+                            background: 'var(--bg-color)', 
+                            color: 'var(--text-color)', 
+                            fontFamily: 'Outfit, sans-serif', 
+                            fontSize: '1rem',
+                            boxSizing: 'border-box'
+                        }}
+                    />
+                    <Search 
+                        size={18} 
+                        style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} 
+                    />
+                </div>
+                <div style={{ flex: 1, position: 'relative' }}>
+                    <input 
+                        type="text" 
+                        value={subjectQuery}
+                        onChange={(e) => setSubjectQuery(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Search subject name..."
                         style={{ 
                             width: '100%', 
                             padding: '12px 15px 12px 40px', 
@@ -128,13 +162,13 @@ const SearchPage = () => {
                 {!hasSearched ? (
                     <p className="text-muted" style={{ textAlign: 'center', marginTop: '40px' }}>
                         <UserPlus style={{ width: '48px', height: '48px', opacity: 0.2, display: 'block', margin: '0 auto 15px auto' }} />
-                        Search for a student to view their submitted feedback and performance records.
+                        Search for a student or subject to view submitted feedback and performance records.
                     </p>
                 ) : results.length === 0 ? (
                     <div style={{ textAlign: 'center', marginTop: '40px', padding: '30px', background: 'rgba(0,0,0,0.02)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
                         <Search style={{ width: '40px', height: '40px', color: 'var(--text-muted)', marginBottom: '15px', opacity: 0.5, margin: '0 auto' }} />
                         <h4 style={{ color: 'var(--text-color)', marginBottom: '5px' }}>No results found</h4>
-                        <p className="text-muted" style={{ fontSize: '0.9rem' }}>Could not find any student matching "{displayQuery}". Try searching for another name.</p>
+                        <p className="text-muted" style={{ fontSize: '0.9rem' }}>Could not find any student or subject matching "{displayQuery}". Try searching for another keyword.</p>
                     </div>
                 ) : (
                     <>
@@ -149,7 +183,10 @@ const SearchPage = () => {
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
                                             <div>
                                                 <h5 style={{ color: 'var(--primary-color)', margin: '0 0 5px 0', fontSize: '1.1rem' }}>{res.subjectName}</h5>
-                                                <span style={{ fontSize: '0.8rem', background: 'rgba(0,0,0,0.05)', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>{res.subjectCode}</span>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.8rem', background: 'rgba(0,0,0,0.05)', padding: '3px 8px', borderRadius: '12px', fontWeight: 600 }}>{res.subjectCode}</span>
+                                                    <span style={{ fontSize: '0.85rem', color: 'var(--text-color)', fontWeight: 500 }}>Student: {res.studentName || 'Anonymous'}</span>
+                                                </div>
                                             </div>
                                             {renderFeedbackIcon(res.rating)}
                                         </div>
